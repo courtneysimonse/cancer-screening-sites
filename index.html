@@ -16,6 +16,9 @@
        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
        crossorigin=""/>
 
+    <!-- Leaflet Search CSS -->
+    <link rel="stylesheet" href="vendor/leaflet-search/leaflet-search.src.css">
+
     <link href='css/styles.css' rel='stylesheet' />
 
     <title>Leaflet Map Template</title>
@@ -24,17 +27,6 @@
     <h1>Hello, world!</h1>
 
     <div id="mapid"></div>
-    <div class="pt-3" id="ui-controls">
-      <div id="slider"></div>
-      <p class="text-light mt-3 mb-0">Date: <span id="event"></span></p>
-    </div>
-
-
-    <!-- <div id="ui-controls">
-      <label><span class="min">2001</span><span class="max">2015</span>
-          <input type="range" min = "2001", max= "2015", value = "2001", step= "1", class="year-slider">
-      </label>
-    </div> -->
 
     <!-- Separate Popper and Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
@@ -45,14 +37,13 @@
       integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
       crossorigin=""></script>
 
+    <!-- Leaflet Search (through features) -->
+    <script src="vendor/leaflet-search/leaflet-search.src.js" charset="utf-8"></script>
+
     <!-- Chroma for Legend -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"
       integrity="sha512-8TVPS0EFkkmtT6yPb5K4csnSt3tjbKRrs0F8gvTNKv2OxOcwDO7+Klkz86gMVrzfqtZos5N2a+k+r9D+hlccmQ=="
       crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <!-- noUiSlider -->
-    <link rel="stylesheet" href="./vendor/noUiSlider/nouislider.min.css">
-    <script src="./vendor/noUiSlider/nouislider.min.js" charset="utf-8"></script>
 
     <script src="js/app.js"></script>
   </body>
