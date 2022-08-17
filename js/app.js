@@ -3,7 +3,7 @@ var options = {
   zoomSnap: .5,
   center: [34.8, -92.0],
   zoom: 7.5,
-  minZoom: 2,
+  minZoom: 7,
   zoomControl: false,
   // attributionControl: false
 }
@@ -36,6 +36,8 @@ var Stadia_AlidadeSmooth = L.tileLayer('https://tiles.stadiamaps.com/tiles/alida
 
 
 var countiesLayer = L.geoJSON(counties, {
+  pane: 'tilePane',
+  interactive: false,
   style: function (feature) {
     return {
       color: '#888',
@@ -43,6 +45,8 @@ var countiesLayer = L.geoJSON(counties, {
     }
   }
 }).addTo(map);
+
+map.setMaxBounds(countiesLayer.getBounds());
 
 // change zoom control position
 L.control.zoom({
