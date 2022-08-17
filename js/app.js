@@ -13,10 +13,10 @@ var map = L.map('mapid', options);
 
 // request tiles and add to map
 // https://leaflet-extras.github.io/leaflet-providers/preview/
-// var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-// 	maxZoom: 19,
-// 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-// }).addTo(map);
+var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
 
 // Stadia
 // var Stadia_OSMBright = L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
@@ -27,16 +27,22 @@ var map = L.map('mapid', options);
 var Stadia_AlidadeSmooth = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
 	maxZoom: 20,
 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-}).addTo(map);
+});
 //
 // var Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
 // 	maxZoom: 20,
 // 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
 // });
 
-var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles Powered by <a href="http://www.esri.com/" target="_blank">ESRI</a> &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-});
+
+var countiesLayer = L.geoJSON(counties, {
+  style: function (feature) {
+    return {
+      color: '#888',
+      weight: 1,
+    }
+  }
+}).addTo(map);
 
 // change zoom control position
 L.control.zoom({
@@ -46,8 +52,9 @@ L.control.zoom({
 let overlayControl = {};
 
 let basemapControl = {
-  "Streets": Stadia_AlidadeSmooth,
-  "Satellite": Esri_WorldImagery
+  "Solid": countiesLayer,
+  "Streets": OpenStreetMap_Mapnik,
+  "Light": Stadia_AlidadeSmooth
 };
 
 var layerControl = L.control.layers(
@@ -58,7 +65,10 @@ var layerControl = L.control.layers(
     collapsed: false
   }).addTo(map);
 
-  const categories = [
+
+L.easyPrint({position: 'topright'}).addTo(map);
+
+const categories = [
     'Breast',
     'Cervical',
     'Colorectal',
@@ -130,6 +140,7 @@ function drawMap(data) {
     onEachFeature: function (feature, layer) {
       layerGroups[feature.properties.type].addLayer(layer);
       var popupText = '';
+      popupText += feature.properties.name;
 
       layer.bindPopup(popupText, {maxwidth: "auto"});
     }
