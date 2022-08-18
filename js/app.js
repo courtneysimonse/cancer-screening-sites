@@ -40,8 +40,9 @@ var countiesLayer = L.geoJSON(counties, {
   interactive: false,
   style: function (feature) {
     return {
-      color: '#888',
+      fillColor: '#BBBBBB',
       weight: 1,
+      color: '#444'
     }
   }
 }).addTo(map);
@@ -88,7 +89,9 @@ const categories = [
  // var breaks = categories.length;
  // var colors = chroma.scale(chroma.brewer.BuGn).colors(categories.length);
  // https://personal.sron.nl/~pault/#sec:qualitative
- var colors = ['#EE6677', '#228833', '#66CCEE', '#CCBB44', '#4477AA', '#AA3377', '#BBBBBB'];
+ // var colors = ['#EE6677', '#228833', '#66CCEE', '#CCBB44', '#4477AA', '#AA3377', '#BBBBBB'];
+ // var colors = ['#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311', '#009988', '#BBBBBB'];
+ var colors = ['#EE99AA', '#6699CC', '#004488', '#EECC66', '#994455', '#997700'];
  console.log(colors);
 
 
@@ -135,15 +138,16 @@ function drawMap(data) {
   });
   // console.log(layerGroups);
 
-
+  var radius = 5;
   var dataLayer = L.geoJSON(data, {
     pointToLayer: function (geoJsonPoint, latlng) {
       // console.log(geoJsonPoint);
       return L.circleMarker(latlng, {
-        radius: 5,
-        color: colors[categories.indexOf(geoJsonPoint.properties.type)],
+        radius: radius,
+        fillColor: colors[categories.indexOf(geoJsonPoint.properties.type)],
         weight: 1,
-        fillOpacity: 0.5,
+        fillOpacity: 0.9,
+        color: 'black',
       })
     },
     onEachFeature: function (feature, layer) {
@@ -163,11 +167,11 @@ function drawMap(data) {
     }
   }).addTo(map);
 
-  var thresholdDistance = metersPerPixel(map.getCenter().lat, map.getZoom())*5; // meters
+  var thresholdDistance = metersPerPixel(map.getCenter().lat, map.getZoom())*radius; // meters
   map.on('click', function (e) {
-    console.log(e);
+    // console.log(e);
     thresholdDistance = metersPerPixel(e.latlng.lat, map.getZoom())*5;
-    console.log(thresholdDistance);
+    // console.log(thresholdDistance);
 
     // var clickBounds = L.circle(e.latlng,{
     //   radius: 200,
@@ -183,11 +187,12 @@ function drawMap(data) {
       // console.log(bounds);
 
       if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance) {
-        console.log(map.distance(e.latlng, layer.getLatLng()));
+        // console.log(map.distance(e.latlng, layer.getLatLng()));
         intersectingFeatures.push(layer);
-      } else if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance*1.5) {
-        console.log(map.distance(e.latlng, layer.getLatLng()));
       }
+      // else if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance*1.5) {
+      //   console.log(map.distance(e.latlng, layer.getLatLng()));
+      // }
 
       // if (!bounds.isValid()) {
       //   console.log('invalid');
@@ -206,11 +211,16 @@ function drawMap(data) {
       if (intersectingFeatures.length > 8) {
         map.setZoomAround(e.latlng, map.getZoom()+1);
       }
-      var html = "Found features: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function(o) {
-        return o.feature.properties.name;
-      }).join('<br/>');
+      var popupHTML = "<h4>Sites: " + intersectingFeatures.length + "</h4>" + intersectingFeatures.map(function(o) {
+        return '<p>' + o.feature.properties.name + '</p>' +
+          '<p>' + o.feature.properties.address + '</p>' +
+          '<p>' + o.feature.properties.phoneNumber + '</p>' +
+          '<p>' + o.feature.properties.type + '</p>';
+      }).join();
 
-      map.openPopup(html, e.latlng, {
+      map.openPopup(popupHTML,
+        e.latlng,
+        {
         maxHeight: 200
       });
     }
