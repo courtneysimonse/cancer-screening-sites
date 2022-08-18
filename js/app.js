@@ -202,12 +202,16 @@ function drawMap(data) {
 
     // if at least one feature found, show it
     if (intersectingFeatures.length) {
+      // zoom in if a large number of features
+      if (intersectingFeatures.length > 8) {
+        map.setZoomAround(e.latlng, map.getZoom()+1);
+      }
       var html = "Found features: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function(o) {
         return o.feature.properties.name;
       }).join('<br/>');
 
       map.openPopup(html, e.latlng, {
-        // offset: L.point(0, -24)
+        maxHeight: 200
       });
     }
   });
