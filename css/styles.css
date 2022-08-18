@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: whitesmoke;
+  background: white;
   font-family: Poppins, sans-serif;
   color: #0D0000;
 }
@@ -95,4 +95,8 @@ p {
   font-weight: bold;
   line-height: 1em;
   color: whitesmoke;
+}
+
+.leaflet-container {
+  background-color:rgba(255,0,0,0.0);
 }

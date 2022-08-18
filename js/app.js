@@ -2,8 +2,10 @@
 var options = {
   zoomSnap: .5,
   center: [34.8, -92.0],
-  zoom: 7.5,
-  minZoom: 7,
+  // zoom: 7.5,
+  minZoom: 5,
+  // padding: [0, 0],
+  // maxBounds: [[36.50, -89.64], [33.00, -94.62]],
   // zoomControl: false,
   // attributionControl: false
 }
@@ -42,12 +44,15 @@ var countiesLayer = L.geoJSON(counties, {
     return {
       fillColor: '#BBBBBB',
       weight: 1,
-      color: '#444'
+      color: '#444',
+      fillOpacity: 1,
     }
   }
 }).addTo(map);
 
-map.setMaxBounds(countiesLayer.getBounds());
+console.log(countiesLayer.getBounds());
+map.fitBounds(countiesLayer.getBounds(), {paddingTopLeft: [0,5], paddingBottomRight: [45,5]});
+// map.setMaxBounds(countiesLayer.getBounds());
 
 // // change zoom control position
 // L.control.zoom({
