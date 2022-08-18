@@ -4,7 +4,7 @@ var options = {
   center: [34.8, -92.0],
   zoom: 7.5,
   minZoom: 7,
-  zoomControl: false,
+  // zoomControl: false,
   // attributionControl: false
 }
 
@@ -48,10 +48,10 @@ var countiesLayer = L.geoJSON(counties, {
 
 map.setMaxBounds(countiesLayer.getBounds());
 
-// change zoom control position
-L.control.zoom({
-  position: 'bottomleft'
-}).addTo(map);
+// // change zoom control position
+// L.control.zoom({
+//   position: 'bottomleft'
+// }).addTo(map);
 
 let overlayControl = {};
 
@@ -69,8 +69,11 @@ var layerControl = L.control.layers(
     collapsed: false
   }).addTo(map);
 
+L.control.locate({
+  locateOptions: {maxZoom: 10},
+}).addTo(map);
 
-L.easyPrint({position: 'topright'}).addTo(map);
+L.easyPrint().addTo(map);
 
 const categories = [
     'Breast',
@@ -85,7 +88,7 @@ const categories = [
  // var breaks = categories.length;
  // var colors = chroma.scale(chroma.brewer.BuGn).colors(categories.length);
  // https://personal.sron.nl/~pault/#sec:qualitative
- var colors = ['#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377', '#BBBBBB'];
+ var colors = ['#EE6677', '#228833', '#66CCEE', '#CCBB44', '#4477AA', '#AA3377', '#BBBBBB'];
  console.log(colors);
 
 
@@ -139,19 +142,84 @@ function drawMap(data) {
       return L.circleMarker(latlng, {
         radius: 5,
         color: colors[categories.indexOf(geoJsonPoint.properties.type)],
+        weight: 1,
+        fillOpacity: 0.5,
       })
     },
     onEachFeature: function (feature, layer) {
+      // console.log(layer);
       layerGroups[feature.properties.type].addLayer(layer);
-      var popupText = '';
-      popupText += feature.properties.name;
-
-      layer.bindPopup(popupText, {maxwidth: "auto"});
+      // var popupText = '';
+      // popupText += '<p>' + feature.properties.name + '<p>';
+      // popupText += '<p>' + feature.properties.address + '<p>';
+      // popupText += '<p>' + feature.properties.phoneNumber + '<p>';
+      // popupText += '<p>' + feature.properties.type + '<p>';
+      //
+      // layer.bindPopup(popupText, {maxWidth: 175});
+      // layer.on('click', function (e) {
+      //   console.log(layer);
+      //
+      // });
     }
   }).addTo(map);
 
+  var thresholdDistance = metersPerPixel(map.getCenter().lat, map.getZoom())*5; // meters
+  map.on('click', function (e) {
+    console.log(e);
+    thresholdDistance = metersPerPixel(e.latlng.lat, map.getZoom())*5;
+    console.log(thresholdDistance);
+
+    // var clickBounds = L.circle(e.latlng,{
+    //   radius: 200,
+    //   stroke: false,
+    //   fill: false
+    // }).addTo(map).getBounds();
+    // console.log(clickBounds);
+
+    var intersectingFeatures = [];
+    dataLayer.eachLayer(function (layer) {
+      // console.log(layer);
+      // var bounds = L.featureGroup().addLayer(layer).getBounds();
+      // console.log(bounds);
+
+      if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance) {
+        console.log(map.distance(e.latlng, layer.getLatLng()));
+        intersectingFeatures.push(layer);
+      } else if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance*1.5) {
+        console.log(map.distance(e.latlng, layer.getLatLng()));
+      }
+
+      // if (!bounds.isValid()) {
+      //   console.log('invalid');
+      // }
+
+      // if (bounds && clickBounds.intersects(bounds)) {
+      //   intersectingFeatures.push(layer);
+      // }
+    });
+
+    console.log(intersectingFeatures);
+
+    // if at least one feature found, show it
+    if (intersectingFeatures.length) {
+      var html = "Found features: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function(o) {
+        return o.feature.properties.name;
+      }).join('<br/>');
+
+      map.openPopup(html, e.latlng, {
+        // offset: L.point(0, -24)
+      });
+    }
+  });
+
 
 }   //end drawMap()
+
+function metersPerPixel(latitude, zoomLevel) {
+  var earthCircumference = 40075017;
+  var latitudeRadians = latitude * (Math.PI/180);
+  return earthCircumference * Math.cos(latitudeRadians) / Math.pow(2, zoomLevel + 8);
+}
 
 function drawLegend(labels, colors) {
 
