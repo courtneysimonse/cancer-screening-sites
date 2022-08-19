@@ -51,7 +51,7 @@ var countiesLayer = L.geoJSON(counties, {
 }).addTo(map);
 
 console.log(countiesLayer.getBounds());
-map.fitBounds(countiesLayer.getBounds(), {paddingTopLeft: [0,5], paddingBottomRight: [45,5]});
+map.fitBounds(countiesLayer.getBounds(), {paddingTopLeft: [8,5], paddingBottomRight: [45,5]});
 // map.setMaxBounds(countiesLayer.getBounds());
 
 // // change zoom control position
@@ -213,9 +213,6 @@ function drawMap(data) {
     // if at least one feature found, show it
     if (intersectingFeatures.length) {
       // zoom in if a large number of features
-      if (intersectingFeatures.length > 8) {
-        map.setZoomAround(e.latlng, map.getZoom()+1);
-      }
       var popupHTML = "<h4>Sites: " + intersectingFeatures.length + "</h4>" + intersectingFeatures.map(function(o) {
         return '<p>' + o.feature.properties.name + '</p>' +
           '<p>' + o.feature.properties.address + '</p>' +
@@ -226,8 +223,15 @@ function drawMap(data) {
       map.openPopup(popupHTML,
         e.latlng,
         {
-        maxHeight: 200
-      });
+          maxHeight: 200,
+          autoPanPaddingTopLeft: [50, 20],
+          autoPanPaddingBottomRight: [130, 20],
+        }
+      );
+
+      if (intersectingFeatures.length > 8) {
+        map.setZoomAround(e.latlng, map.getZoom()+1);
+      }
     }
   });
 
