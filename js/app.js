@@ -172,6 +172,10 @@ function drawMap(data) {
     }
   }).addTo(map);
 
+  map.on('popupclose', function (e) {
+    dataLayer.resetStyle();
+  });
+
   var thresholdDistance = metersPerPixel(map.getCenter().lat, map.getZoom())*radius; // meters
   map.on('click', function (e) {
     // console.log(e);
@@ -194,6 +198,11 @@ function drawMap(data) {
       if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance) {
         // console.log(map.distance(e.latlng, layer.getLatLng()));
         intersectingFeatures.push(layer);
+
+        layer.setStyle({
+          weight: 2,
+          color: 'yellow'
+        });
       }
       // else if (map.distance(e.latlng, layer.getLatLng()) <= thresholdDistance*1.5) {
       //   console.log(map.distance(e.latlng, layer.getLatLng()));
@@ -213,12 +222,13 @@ function drawMap(data) {
     // if at least one feature found, show it
     if (intersectingFeatures.length) {
       // zoom in if a large number of features
-      var popupHTML = "<h4>Sites: " + intersectingFeatures.length + "</h4>" + intersectingFeatures.map(function(o) {
-        return '<p>' + o.feature.properties.name + '</p>' +
-          '<p>' + o.feature.properties.address + '</p>' +
-          '<p>' + o.feature.properties.phoneNumber + '</p>' +
-          '<p>' + o.feature.properties.type + '</p>';
-      }).join();
+      var popupHTML = "<h4>" + intersectingFeatures.length + " Screening Sites</h4><ul>" + intersectingFeatures.map(function(o) {
+        return '<li><span>' + o.feature.properties.name + '</span>' +
+          '<span>' + o.feature.properties.address + '</span>' +
+          '<span>' + o.feature.properties.phoneNumber + '</span>' +
+          '<span>' + o.feature.properties.type + '</span>';
+      }).join('</li>');
+      popupHTML += '</ul>';
 
       map.openPopup(popupHTML,
         e.latlng,

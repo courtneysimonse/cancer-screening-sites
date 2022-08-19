@@ -99,4 +99,15 @@ p {
 
 .leaflet-container {
   background-color:rgba(255,0,0,0.0);
+  font-family: Poppins, sans-serif;
+}
+
+.leaflet-popup-content {
+  border: none;
+
+}
+
+h4 {
+  font-size: 1.3em;
+  font-weight: bold;
 }
