@@ -13,6 +13,14 @@ var options = {
 // create map
 var map = L.map('mapid', options);
 
+map.on('autopanstart', function (event) {
+  console.log("autopan");
+});
+
+map.on('moveend', function (event) {
+  console.log("moveend");
+});
+
 // request tiles and add to map
 // https://leaflet-extras.github.io/leaflet-providers/preview/
 var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -42,7 +50,7 @@ var countiesLayer = L.geoJSON(counties, {
   interactive: false,
   style: function (feature) {
     return {
-      fillColor: '#BBBBBB',
+      fillColor: '#888',
       weight: 1,
       color: '#444',
       fillOpacity: 1,
@@ -94,9 +102,9 @@ const categories = [
  // var breaks = categories.length;
  // var colors = chroma.scale(chroma.brewer.BuGn).colors(categories.length);
  // https://personal.sron.nl/~pault/#sec:qualitative
- // var colors = ['#EE6677', '#228833', '#66CCEE', '#CCBB44', '#4477AA', '#AA3377', '#BBBBBB'];
+ var colors = ['#EE6677', '#228833', '#66CCEE', '#CCBB44', '#4477AA', '#AA3377', '#BBBBBB'];
  // var colors = ['#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311', '#009988', '#BBBBBB'];
- var colors = ['#EE99AA', '#6699CC', '#004488', '#EECC66', '#994455', '#997700'];
+ // var colors = ['#EE99AA', '#6699CC', '#004488', '#EECC66', '#994455', '#997700'];
  console.log(colors);
 
 
@@ -143,16 +151,16 @@ function drawMap(data) {
   });
   // console.log(layerGroups);
 
-  var radius = 5;
+  var radius = 8;
   var dataLayer = L.geoJSON(data, {
     pointToLayer: function (geoJsonPoint, latlng) {
       // console.log(geoJsonPoint);
       return L.circleMarker(latlng, {
         radius: radius,
         fillColor: colors[categories.indexOf(geoJsonPoint.properties.type)],
-        weight: 1,
+        weight: 2,
         fillOpacity: 0.9,
-        color: 'black',
+        color: 'whitesmoke',
       })
     },
     onEachFeature: function (feature, layer) {
@@ -221,14 +229,22 @@ function drawMap(data) {
 
     // if at least one feature found, show it
     if (intersectingFeatures.length) {
-      // zoom in if a large number of features
-      var popupHTML = "<h4>" + intersectingFeatures.length + " Screening Sites</h4><ul>" + intersectingFeatures.map(function(o) {
-        return '<li><span>' + o.feature.properties.name + '</span>' +
-          '<span>' + o.feature.properties.address + '</span>' +
-          '<span>' + o.feature.properties.phoneNumber + '</span>' +
-          '<span>' + o.feature.properties.type + '</span>';
-      }).join('</li>');
-      popupHTML += '</ul>';
+      var popupHTML = "";
+      if (intersectingFeatures.length > 1) {
+        popupHTML += "<h4>" + intersectingFeatures.length + " Screening Sites</h4><ul class='list-group list-group-flush'>" + intersectingFeatures.map(function(o) {
+          return '<li class="list-group-item"><p>' + o.feature.properties.name + ': </p>' +
+            '<span>' + o.feature.properties.address + ' </span>' +
+            '<span>' + o.feature.properties.phoneNumber + ' </span>' +
+            '<span>Type:' + o.feature.properties.type + '</span>';
+        }).join('</li>');
+        popupHTML += '</ul>';
+      } else {
+        popupHTML += '<span>' + intersectingFeatures[0].feature.properties.name + '</span>' +
+          '<span>' + intersectingFeatures[0].feature.properties.address + '</span>' +
+          '<span>' + intersectingFeatures[0].feature.properties.phoneNumber + '</span>' +
+          '<span>' + intersectingFeatures[0].feature.properties.type + '</span>';
+      }
+
 
       map.openPopup(popupHTML,
         e.latlng,
@@ -239,6 +255,7 @@ function drawMap(data) {
         }
       );
 
+      // zoom in if a large number of features
       if (intersectingFeatures.length > 8) {
         map.setZoomAround(e.latlng, map.getZoom()+1);
       }
