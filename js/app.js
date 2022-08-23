@@ -297,6 +297,16 @@ function drawMap(data) {
 
     // if at least one feature found, show it
     if (intersectingFeatures.length) {
+      var popup = L.popup({
+        maxHeight: 200,
+        autoPanPaddingTopLeft: [50, 20],
+        autoPanPaddingBottomRight: [130, 20],
+      });
+      // console.log(dataLayer.getLayerId(intersectingFeatures[0]));
+      intersectingFeatures.forEach((layer, i) => {
+        layer.feature.properties.id = dataLayer.getLayerId(layer);
+      });
+
       var popupHTML = "";
       if (intersectingFeatures.length > 1) {
         popupHTML += '<p class="fs-5 fw-bold p-0 m-0">' + intersectingFeatures.length +
@@ -307,15 +317,15 @@ function drawMap(data) {
         popupHTML += generatePopup(intersectingFeatures[0]) + '</li>';
       }
 
-
-      map.openPopup(popupHTML,
-        e.latlng,
-        {
-          maxHeight: 200,
-          autoPanPaddingTopLeft: [50, 20],
-          autoPanPaddingBottomRight: [130, 20],
-        }
-      );
+      popup.setLatLng(e.latlng).setContent(popupHTML).openOn(map);
+      // map.openPopup(popupHTML,
+      //   e.latlng,
+      //   {
+      //     maxHeight: 200,
+      //     autoPanPaddingTopLeft: [50, 20],
+      //     autoPanPaddingBottomRight: [130, 20],
+      //   }
+      // );
 
       // zoom in if a large number of features
       if (intersectingFeatures.length > 8) {
@@ -323,6 +333,30 @@ function drawMap(data) {
         // map.setZoomAround(e.latlng, map.getZoom()+1);
         // map.zoomIn();
       }
+
+      var markerLinks = document.getElementsByClassName('marker-link');
+      // Convert the node list into an Array so we can
+      // safely use Array methods with it
+      let linksArray = Array.prototype.slice.call(markerLinks);
+
+      // Loop over the array of elements
+      linksArray.forEach(function(elem){
+        // Assign an event handler
+        elem.addEventListener("click", function(){
+          console.log(event);
+          let id = +event.target.id;
+          console.log(dataLayer.getLayer(id).getLatLng());
+
+          map.setView(dataLayer.getLayer(id).getLatLng(),15);
+          popup.setLatLng(dataLayer.getLayer(id).getLatLng());
+          popup.setContent(generatePopup(dataLayer.getLayer(id)));
+
+          if (map.hasLayer(countiesLayer)) {
+            map.removeLayer(countiesLayer);
+            map.addLayer(Stadia_AlidadeSmooth);
+          }
+        });
+      });
     }
   });
 
@@ -369,7 +403,7 @@ function drawLegend(labels, colors) {
 } // end drawLegend()
 
 function generatePopup(o) {
-  var html = '<li class="list-group-item px-0"><p class="my-0 fw-bold"><a href="">' + o.feature.properties.name + '</a>: </p>' +
+  var html = '<li class="list-group-item px-0"><p class="my-0 fw-bold">' + o.feature.properties.name + ': </p>' +
     '<p class="my-0">' + o.feature.properties.address + ' </p>' +
     '<p class="my-0">Tel: ' + '<a href="tel:+1' + o.feature.properties.phoneNumber +'">' + o.feature.properties.phoneNumber + '</a></p>' +
     '<p class="my-0">Screening Type: ' + o.feature.properties.type;
@@ -380,10 +414,11 @@ function generatePopup(o) {
   } else {
     html += ' Cancer';
   }
+
   // if (!(o.feature.properties.type == 'FQHC' || o.feature.properties.type == 'RHC')) {
   //   html += ' Cancer'
   // }
 
-  html += '</p>';
+  html += '</p>' + '<p class="my-0"><a href="#" class="marker-link" id="' + o.feature.properties.id + '">Zoom to location</a></p>';
   return html;
 } // end generatePopup
