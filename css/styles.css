@@ -82,9 +82,10 @@ p {
 }
 
 .legendColor {
-    width: 20px;
-    height: 20px;
-    float: left;
+  width: 20px;
+  height: 20px;
+  float: left;
+  border-radius: 50%;
 }
 
 .leaflet-control-layers-selector {
@@ -105,9 +106,4 @@ p {
 .leaflet-popup-content {
   border: none;
 
-}
-
-h4 {
-  font-size: 1.3em;
-  font-weight: bold;
 }
