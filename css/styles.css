@@ -105,5 +105,9 @@ p {
 
 .leaflet-popup-content {
   border: none;
+}
 
+.sites-list {
+  overflow-y: auto;
+  max-height: 170px;
 }

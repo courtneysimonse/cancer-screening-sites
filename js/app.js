@@ -15,18 +15,20 @@ var map = L.map('mapid', options);
 
 map.on('autopanstart', function (event) {
   console.log("autopan");
+  console.log(map.getCenter());
 });
 
 map.on('moveend', function (event) {
   console.log("moveend");
+  console.log(map.getCenter());
 });
 
 // request tiles and add to map
 // https://leaflet-extras.github.io/leaflet-providers/preview/
-var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	maxZoom: 19,
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-});
+// var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// 	maxZoom: 19,
+// 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+// });
 
 // Stadia
 // var Stadia_OSMBright = L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
@@ -71,7 +73,7 @@ let overlayControl = {};
 
 let basemapControl = {
   "Solid": countiesLayer,
-  "Streets": OpenStreetMap_Mapnik,
+  // "Streets": OpenStreetMap_Mapnik,
   "Light": Stadia_AlidadeSmooth
 };
 
@@ -121,11 +123,11 @@ function processData() {
         type: d.Type,
         name: d.Name,
         address: d.Address,
-        phoneNumber: d["Phone Number"]
+        phoneNumber: d["Phone Number"],
       },
       geometry: {
         type: "Point",
-        coordinates: [+d.Longitude, +d.Latitude]
+        coordinates: [+d.Longitude, +d.Latitude],
       }
     }
   }).then((data) => {
@@ -159,7 +161,7 @@ function drawMap(data) {
         radius: radius,
         fillColor: colors[categories.indexOf(geoJsonPoint.properties.type)],
         weight: 2,
-        fillOpacity: 0.9,
+        fillOpacity: 1,
         color: 'whitesmoke',
       })
     },
@@ -177,6 +179,15 @@ function drawMap(data) {
       //   console.log(layer);
       //
       // });
+      layer.on('mouseover', function (e) {
+        layer.setStyle({
+          // weight: 2,
+          color: 'yellow'
+        });
+      });
+      layer.on('mouseout', function (e) {
+        dataLayer.resetStyle(layer);
+      });
     }
   }).addTo(map);
 
@@ -185,6 +196,7 @@ function drawMap(data) {
   });
 
   var thresholdDistance = metersPerPixel(map.getCenter().lat, map.getZoom())*radius; // meters
+
   map.on('click', function (e) {
     // console.log(e);
     thresholdDistance = metersPerPixel(e.latlng.lat, map.getZoom())*radius;
@@ -208,7 +220,7 @@ function drawMap(data) {
         intersectingFeatures.push(layer);
 
         layer.setStyle({
-          weight: 2,
+          // weight: 2,
           color: 'yellow'
         });
       }
@@ -231,7 +243,8 @@ function drawMap(data) {
     if (intersectingFeatures.length) {
       var popupHTML = "";
       if (intersectingFeatures.length > 1) {
-        popupHTML += '<p class="fs-5 fw-bold p-0 m-0">' + intersectingFeatures.length + " Screening Sites</p><div><ul class='list-group list-group-flush'>" +
+        popupHTML += '<p class="fs-5 fw-bold p-0 m-0">' + intersectingFeatures.length +
+          ' Screening Sites</p><div class="sites-list"><ul class="list-group list-group-flush">' +
           intersectingFeatures.map(generatePopup).join('</li>');
         popupHTML += '</ul></div>';
       } else {
@@ -250,7 +263,9 @@ function drawMap(data) {
 
       // zoom in if a large number of features
       if (intersectingFeatures.length > 8) {
-        map.setZoomAround(e.latlng, map.getZoom()+1);
+        map.setView(e.latlng, map.getZoom()+2);
+        // map.setZoomAround(e.latlng, map.getZoom()+1);
+        // map.zoomIn();
       }
     }
   });
@@ -298,8 +313,21 @@ function drawLegend(labels, colors) {
 } // end drawLegend()
 
 function generatePopup(o) {
-return '<li class="list-group-item px-0"><p class="my-0 fw-bold">' + o.feature.properties.name + ': </p>' +
-  '<p class="my-0">' + o.feature.properties.address + ' </p>' +
-  '<p class="my-0">Tel: ' + '<a href="tel:+1' + o.feature.properties.phoneNumber +'">' + o.feature.properties.phoneNumber + '</a></p>' +
-  '<p class="my-0">Screening Type: ' + o.feature.properties.type + '</p>';
+  var html = '<li class="list-group-item px-0"><p class="my-0 fw-bold"><a href="">' + o.feature.properties.name + '</a>: </p>' +
+    '<p class="my-0">' + o.feature.properties.address + ' </p>' +
+    '<p class="my-0">Tel: ' + '<a href="tel:+1' + o.feature.properties.phoneNumber +'">' + o.feature.properties.phoneNumber + '</a></p>' +
+    '<p class="my-0">Screening Type: ' + o.feature.properties.type;
+  if (o.feature.properties.type == 'FQHC') {
+    html += ' (Federally Qualified Health Center)';
+  } else if (o.feature.properties.type == 'RHC') {
+    html += ' (Rural Health Clinic)';
+  } else {
+    html += ' Cancer';
+  }
+  // if (!(o.feature.properties.type == 'FQHC' || o.feature.properties.type == 'RHC')) {
+  //   html += ' Cancer'
+  // }
+
+  html += '</p>';
+  return html;
 }
