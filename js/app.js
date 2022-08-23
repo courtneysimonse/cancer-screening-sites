@@ -1,3 +1,31 @@
+L.Mask = L.Polygon.extend({
+
+    options: {
+        stroke: false,
+        color: '#333',
+        fillOpacity: 0.7,
+        clickable: true,
+        outerBounds: new L.LatLngBounds([-90, -360], [90, 360])
+    },
+
+    initialize: function (latLngs, options) {
+
+         var outerBoundsLatLngs = [
+            this.options.outerBounds.getSouthWest(),
+            this.options.outerBounds.getNorthWest(),
+            this.options.outerBounds.getNorthEast(),
+            this.options.outerBounds.getSouthEast()
+        ];
+
+        L.Polygon.prototype.initialize.call(this, [outerBoundsLatLngs, latLngs], options);
+    }
+
+});
+
+L.mask = function (latLngs, options) {
+    return new L.Mask(latLngs, options);
+};
+
 // Arkansas map options
 var options = {
   zoomSnap: .5,
@@ -45,7 +73,34 @@ var Stadia_AlidadeSmooth = L.tileLayer('https://tiles.stadiamaps.com/tiles/alida
 // 	maxZoom: 20,
 // 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
 // });
+var stateOutline = L.geoJSON(arkansas, {
+  pane: 'tilePane',
+  interactive: false,
+  style: function (feature) {
+    return {
+      weight: 2,
+      color: '#888',
+      fillOpacity: 0,
+    }
+  }
+}).addTo(map);
 
+var countiesOutlines = L.geoJSON(counties, {
+  pane: 'tilePane',
+  interactive: false,
+  style: function (feature) {
+    return {
+      weight: .5,
+      color: '#888',
+      fillOpacity: 0,
+    }
+  }
+}).addTo(map);
+
+var latLngs = stateOutline.getLayers()[0].getLatLngs()[0][0];
+console.log(countiesOutlines.getLayers());
+console.log(latLngs);
+L.mask(latLngs).addTo(map);
 
 var countiesLayer = L.geoJSON(counties, {
   pane: 'tilePane',
@@ -59,6 +114,7 @@ var countiesLayer = L.geoJSON(counties, {
     }
   }
 }).addTo(map);
+
 
 console.log(countiesLayer.getBounds());
 map.fitBounds(countiesLayer.getBounds(), {paddingTopLeft: [8,5], paddingBottomRight: [45,5]});
@@ -330,4 +386,4 @@ function generatePopup(o) {
 
   html += '</p>';
   return html;
-}
+} // end generatePopup
