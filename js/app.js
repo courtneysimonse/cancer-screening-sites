@@ -231,19 +231,11 @@ function drawMap(data) {
     if (intersectingFeatures.length) {
       var popupHTML = "";
       if (intersectingFeatures.length > 1) {
-        popupHTML += '<p class="fs-5 fw-bold p-0 m-0">' + intersectingFeatures.length + " Screening Sites</p><ul class='list-group list-group-flush'>" +
-          intersectingFeatures.map(function(o) {
-          return '<li class="list-group-item px-0"><p class="my-0 fw-bold">' + o.feature.properties.name + ': </p>' +
-            '<p class="my-0">' + o.feature.properties.address + ' </p>' +
-            '<p class="my-0">' + o.feature.properties.phoneNumber + ' </p>' +
-            '<p class="my-0">Screening Type: ' + o.feature.properties.type + '</p>';
-        }).join('</li>');
-        popupHTML += '</ul>';
+        popupHTML += '<p class="fs-5 fw-bold p-0 m-0">' + intersectingFeatures.length + " Screening Sites</p><div><ul class='list-group list-group-flush'>" +
+          intersectingFeatures.map(generatePopup).join('</li>');
+        popupHTML += '</ul></div>';
       } else {
-        popupHTML += '<span><strong>' + intersectingFeatures[0].feature.properties.name + ':</strong> </span>' +
-          '<span>' + intersectingFeatures[0].feature.properties.address + '</span>' +
-          '<span>' + intersectingFeatures[0].feature.properties.phoneNumber + '</span>' +
-          '<span>' + intersectingFeatures[0].feature.properties.type + '</span>';
+        popupHTML += generatePopup(intersectingFeatures[0]) + '</li>';
       }
 
 
@@ -304,3 +296,10 @@ function drawLegend(labels, colors) {
   legend.innerHTML = legendHTML;
 
 } // end drawLegend()
+
+function generatePopup(o) {
+return '<li class="list-group-item px-0"><p class="my-0 fw-bold">' + o.feature.properties.name + ': </p>' +
+  '<p class="my-0">' + o.feature.properties.address + ' </p>' +
+  '<p class="my-0">Tel: ' + '<a href="tel:+1' + o.feature.properties.phoneNumber +'">' + o.feature.properties.phoneNumber + '</a></p>' +
+  '<p class="my-0">Screening Type: ' + o.feature.properties.type + '</p>';
+}
