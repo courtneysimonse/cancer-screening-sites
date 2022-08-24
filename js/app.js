@@ -133,7 +133,7 @@ let overlayControl = {};
 let basemapControl = {
   "Solid": countiesLayer,
   // "Streets": OpenStreetMap_Mapnik,
-  "Light": Stadia_AlidadeSmooth
+  "Streets": Stadia_AlidadeSmooth
 };
 
 var layerControl = L.control.layers(
