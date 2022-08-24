@@ -117,7 +117,10 @@ var countiesLayer = L.geoJSON(counties, {
 
 
 console.log(countiesLayer.getBounds());
-map.fitBounds(countiesLayer.getBounds(), {paddingTopLeft: [8,5], paddingBottomRight: [45,5]});
+map.fitBounds(stateOutline.getBounds(), {
+  paddingTopLeft: [5,5],
+  paddingBottomRight: [5,5]
+});
 // map.setMaxBounds(countiesLayer.getBounds());
 
 // // change zoom control position
